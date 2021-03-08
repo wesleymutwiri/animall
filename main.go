@@ -10,7 +10,7 @@ type show struct {
 	Title   string
 	Date    string
 	Episode string
-	Time    string
+	// Time    string
 }
 
 func main() {
@@ -35,15 +35,15 @@ func main() {
 	c.OnHTML(".timetable .timetable-day", func(e *colly.HTMLElement) {
 		heading := e.ChildText(".timetable-day__heading h2")
 		fmt.Printf("Heading: %s \n", heading)
-		e.ForEach(".timetable-timeslot .timetable-timeslot__content", func(_ int, el *colly.HTMLElement) {
-			time := e.ChildText(".timetable-timeslot .timetable-timeslot__content .timetable-timeslot__time .time")
+		// time := e.ChildText(".timetable-timeslot .timetable-timeslot__content .timetable-timeslot__time .time")
+		e.ForEach(".timetable-timeslot .timetable-timeslot__content .timetable-anime-block", func(_ int, el *colly.HTMLElement) {
 			show := show{
-				Title:   el.ChildText(".timetable-anime-block .body .title"),
+				Title:   el.ChildText(".body .title"),
 				Date:    heading,
 				Episode: el.ChildText(".timetable-anime-block .body .footer"),
-				Time:    time,
+				// Time:    e.ChildText(".timetable-timeslot__time .time"),
 			}
-			fmt.Printf("Title: %s \n Date: %s \n Episode: %s \n Time: %s \n \n", show.Title, show.Date, show.Episode, show.Time)
+			fmt.Printf("Title: %s \n Date: %s \n Episode: %s \n \n", show.Title, show.Date, show.Episode)
 		})
 	})
 	// Visit the site using the current URL
