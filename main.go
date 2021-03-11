@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -18,6 +21,12 @@ type show struct {
 	CurrentTime time.Time
 }
 
+type CsvLine struct {
+	Name    string
+	Episode string
+	Status  string
+}
+
 func main() {
 	// fName := "latestanime.csv"
 	// file, err := os.create(fName)
@@ -29,7 +38,16 @@ func main() {
 	// defer writer.Flush()
 
 	// writer.Write([]string{""})
+	// for reading the csv file provided
+	handleRequests()
+}
 
+func handleRequests() {
+	http.HandleFunc("/schedule", getLatestAnime)
+	log.Fatal(http.ListenAndServe(":10000", nil))
+}
+
+func getLatestAnime(w http.ResponseWriter, r *http.Request) {
 	c := colly.NewCollector()
 
 	// threads := make(map[string][]show)
@@ -68,7 +86,40 @@ func main() {
 	// Visit the site using the current URL
 	c.Visit("https://www.livechart.me/timetable")
 	// log.Printf("Finished scraping, check file %q for results \n", fName)
-	enc := json.NewEncoder(os.Stdout)
+	// GetAnimeList()
+	enc := json.NewEncoder(w)
 	enc.SetIndent("", " ")
 	enc.Encode(shows)
+}
+
+func ReadCsv(filename string) ([][]string, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return [][]string{}, err
+	}
+	defer f.Close()
+	lines, err := csv.NewReader(f).ReadAll()
+	if err != nil {
+		return [][]string{}, err
+	}
+	return lines, nil
+}
+
+func GetAnimeList() {
+	currentShows := make([]*CsvLine, 0)
+	lines, err := ReadCsv("AnimeList.csv")
+	if err != nil {
+		panic(err)
+	}
+
+	for _, line := range lines {
+		data := &CsvLine{
+			Name:    line[0],
+			Episode: line[1],
+			Status:  line[3],
+		}
+		// fmt.Println(data.Name + " " + data.Episode + " " + data.Status)
+		currentShows = append(currentShows, data)
+		// fmt.Printf("Final List: %d", len(currentShows))
+	}
 }
