@@ -80,8 +80,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("Unable to retrieve Sheets client: %v", err)
 	}
-	spreadsheetId := "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
-	readRange := "Class Data!A2:E"
+	spreadsheetId := "1Oqj10Qzh-lItAmr0X-iGvYj5cT7DQjp_ALM722EF1wc"
+	readRange := "Sheet1!A1:E"
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetId, readRange).Do()
 	if err != nil {
 		log.Fatalf("Unable to retrieve data from sheet: %v", err)
@@ -92,8 +92,13 @@ func main() {
 	} else {
 		fmt.Println("Name, Major:")
 		for _, row := range resp.Values {
-			// Print columns A and E, which correspond to indices 0 and 4.
-			fmt.Printf("%s, %s\n", row[0], row[4])
+			if len(row) >= 2 {
+				fmt.Printf("%s, %s\n", row[0], row[1])
+			} else if len(row) == 1 {
+				fmt.Printf("%s", row[0])
+			} else {
+				fmt.Println("Row is empty")
+			}
 		}
 	}
 
